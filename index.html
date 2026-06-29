@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spectrum Swag Portal</title>
+    <style>
+        :root {
+            --bg-dark: #0b0c10;
+            --bg-card: #1f2833;
+            --spectrum-blue: #00629b;
+            --spectrum-light-blue: #00a3e0;
+            --spectrum-cyan: #66fcf1;
+            --text-light: #a5c3cf;
+            --text-white: #ffffff;
+            --danger: #ff3333;
+            --success: #00ffcc;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-white);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+        header {
+            width: 100%;
+            background: linear-gradient(135deg, var(--spectrum-blue), var(--spectrum-light-blue));
+            padding: 15px 0;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0, 98, 155, 0.4);
+        }
+        header h1 {
+            margin: 0;
+            font-size: 2rem;
+            letter-spacing: 3px;
+            font-weight: 800;
+        }
+        .container {
+            width: 95%;
+            max-width: 1400px;
+            margin: 20px auto;
+            padding-bottom: 50px;
+        }
+        .nav-bar {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+        .card {
+            background-color: var(--bg-card);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+            border: 1px solid rgba(0, 163, 224, 0.15);
+            margin-bottom: 20px;
+        }
+        h2 {
+            color: var(--spectrum-cyan);
+            margin-top: 0;
+            border-bottom: 2px solid var(--spectrum-blue);
+            padding-bottom: 6px;
+            letter-spacing: 1px;
+            font-size: 1.3rem;
+        }
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+        }
+        @media(max-width: 992px) { .grid-2 { grid-template-columns: 1fr; } }
+        .balance-display {
+            font-size: 4rem;
+            font-weight: bold;
+            color: var(--spectrum-cyan);
+            text-shadow: 0 0 20px rgba(102, 252, 241, 0.3);
+            text-align: center;
+            margin: 15px 0;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 6px;
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+        input, select {
+            width: 100%;
+            padding: 12px;
+            box-sizing: border-box;
+            background-color: #0b0c10;
+            border: 1px solid var(--spectrum-blue);
+            color: white;
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--spectrum-light-blue);
+        }
+        .btn {
+            background: linear-gradient(135deg, var(--spectrum-blue), var(--spectrum-light-blue));
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            width: 100%;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.9rem;
+        }
+        .btn:hover { opacity: 0.9; }
+        .btn-danger { background: var(--danger); }
+        .btn-success-alt { background: linear-gradient(135deg, #00ffcc, var(--spectrum-blue)); color:#0b0c10; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+        th { color: var(--text-light); font-weight: 600; }
+        .view-pane { display: none; }
+        .view-pane.active { display: block; }
+        .scroll-box {
+            max-height: 350px;
+            overflow-y: auto;
+            border-radius: 6px;
+            background: #0b0c10;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        .inline-edit-input {
+            width: 70px;
+            padding: 5px;
+            text-align: center;
+            border: 1px solid var(--spectrum-blue);
+            background: #0b0c10;
+            color: white;
+        }
+        .link-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-top: 10px;
+        }
+        .rich-link-preview {
+            background-color: #0b0c10;
+            padding: 12px;
+            border-radius: 6px;
+            border: 1px solid var(--spectrum-blue);
+            flex-grow: 1;
+            font-size: 1.1rem;
+        }
+        /* Hidden copy proxy layer styling */
+        #hidden-copy-proxy {
+            position: absolute;
+            left: -9999px;
+            top: -9999px;
+            background: white;
+            color: black;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>SPECTRUM SWAG PORTAL</h1>
+    </header>
+
+    <div class="container">
+        
+        <!-- PIN-BASED LOGIN VIEW (FOR AGENTS) -->
+        <div id="view-login" class="view-pane active">
+            <div class="card" style="max-width: 420px; margin: 60px auto 0 auto;">
+                <h2>System Portal Sign-In</h2>
+                <div class="form-group">
+                    <label>Enter Seat Number / PIN</label>
+                    <input type="text" id="login-pin" autocomplete="off" style="text-align: center; font-size: 1.2rem; letter-spacing: 2px;">
+                </div>
+                <button class="btn" onclick="processLogin()">Access Portal</button>
+            </div>
+        </div>
+
+        <!-- AGENT VIEW BOARD -->
+        <div id="view-agent" class="view-pane">
+            <div class="nav-bar">
+                <span>Logged in as: <strong id="agent-current-name" style="color:var(--spectrum-cyan)"></strong> (Seat <span id="agent-current-seat"></span>)</span>
+                <button class="btn" onclick="logout()" style="width:auto; padding:5px 15px;">Sign Out</button>
+            </div>
+            
+            <div class="card">
+                <h2>Your Current Balance</h2>
+                <div class="balance-display"><span id="agent-balance-val">0</span> <span style="font-size:1.8rem; color:var(--text-light)">Swagbucks</span></div>
+            </div>
+
+            <div class="card">
+                <h2>Your Rewards Ledger</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Description / Action</th>
+                            <th>Amount Change</th>
+                        </tr>
+                    </thead>
+                    <tbody id="agent-ledger-rows"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ADMIN/SUPERVISOR CONSOLE -->
+        <div id="view-admin" class="view-pane">
+            <div class="nav-bar">
+                <span><strong>ADMIN MANAGEMENT CONSOLE</strong></span>
+                <button class="btn" onclick="logout()" style="width:auto; padding:5px 15px;">Exit Console</button>
+            </div>
+
+            <!-- RICH TEXT SHARABLE LINK COPIER -->
+            <div class="card">
+                <h2>Webex Shareable Portal Link Generator</h2>
+                <label>Click the button below to copy a rich-text hyperlink. When pasted directly into Webex, it bypasses the plain-text markdown renderer to paste as a clean link reading "SWAG BALANCES":</label>
+                <div class="link-container">
+                    <div class="rich-link-preview">
+                        <span>SWAG BALANCES</span>
+                    </div>
+                    <button class="btn" onclick="copyRichHyperlink()" style="width: auto; padding: 12px 25px;">Copy Webex Link</button>
+                </div>
+            </div>
+
+            <!-- HIDDEN RICH TEXT CLIPBOARD PROXY -->
+            <div id="hidden-copy-proxy" contenteditable="true"></div>
+
+            <div class="grid-2">
+                <div>
+                    <!-- TRANSACTION POSTING AND DEDUCTIONS -->
+                    <div class="card">
+                        <h2>Distribute Swagbucks / Process Rewards</h2>
+                        <div class="form-group">
+                            <label>Target Agent</label>
+                            <select id="tx-agent"></select>
+                        </div>
+                        <div class="form-group">
+                            <label>Action Template</label>
+                            <select id="tx-template" onchange="applyTemplate()">
+                                <option value="manual">Manual Entry / Custom Deposit</option>
+                                <option value="2|Candy Bar">Redeem: Candy Bar (-2)</option>
+                                <option value="5|Chips">Redeem: Chips (-5)</option>
+                                <option value="15|5 Spark Points">Redeem: 5 Spark Points (-15)</option>
+                                <option value="20|Spectrum Water Bottle">Redeem: Spectrum Water Bottle (-20)</option>
+                                <option value="25|Spectrum Coffee Mug">Redeem: Spectrum Coffee Mug (-25)</option>
+                                <option value="30|Spectrum Power Bank">Redeem: Spectrum Power Bank (-30)</option>
+                                <option value="35|Spectrum T-Shirt">Redeem: Spectrum T-Shirt (-35)</option>
+                                <option value="40|Spectrum Tumbler">Redeem: Spectrum Tumbler (-40)</option>
+                                <option value="45|Spectrum Long Sleeve">Redeem: Spectrum Long Sleeve (-45)</option>
+                                <option value="50|Spectrum Umbrella">Redeem: Spectrum Umbrella (-50)</option>
+                                <option value="55|Spectrum Lunch Cooler">Redeem: Spectrum Lunch Cooler (-55)</option>
+                                <option value="60|Spectrum Duffel Bag">Redeem: Spectrum Duffel Bag (-60)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Value Change (Negative values for redemptions)</label>
+                            <input type="number" id="tx-amount" placeholder="e.g., 50 or -20">
+                        </div>
+                        <div class="form-group">
+                            <label>Log Annotation / Description</label>
+                            <input type="text" id="tx-desc" placeholder="Reason or Reward Description">
+                        </div>
+                        <button class="btn" onclick="submitTransaction()">Apply Transaction</button>
+                    </div>
+                </div>
+
+                <div>
+                    <!-- ROSTER ADDITION WITH SEAT ASSIGNMENT -->
+                    <div class="card">
+                        <h2>Roster Enrollment</h2>
+                        <div class="form-group">
+                            <label>Agent Name</label>
+                            <input type="text" id="new-agent-name" placeholder="Enter Full Name" autocomplete="off">
+                        </div>
+                        <div class="form-group">
+                            <label>Seat Number (Sign-In PIN)</label>
+                            <input type="text" id="new-agent-pin" placeholder="e.g., 12 or A4" autocomplete="off">
+                        </div>
+                        <button class="btn btn-success-alt" onclick="addNewAgent()">Enroll Agent</button>
+                    </div>
+
+                    <div class="card">
+                        <h2>Agent Master List (Alphabetical)</h2>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Seat / PIN</th>
+                                    <th>Balance</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-roster-rows"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        function getFreshInitialState() {
+            return {
+                agents: [
+                    { id: 1, name: "Manager Account (Admin)", pin: "2694", balance: 0, isAdmin: true },
+                    { id: 2, name: "Alpha Agent", pin: "101", balance: 100, isAdmin: false },
+                    { id: 3, name: "Beta Agent", pin: "102", balance: 45, isAdmin: false }
+                ],
+                transactions: [
+                    { id: 1, agentId: 2, amount: 100, desc: "Onboarding Bonus" },
+                    { id: 2, agentId: 3, amount: 45, desc: "Performance Incentive" }
+                ]
+            };
+        }
+
+        let appData = getFreshInitialState();
+        let currentUser = null;
+        let globalFullUrl = "";
+
+        function loadFromUrlHash() {
+            if (window.location.hash && window.location.hash.length > 1) {
+                try {
+                    const base64Data = window.location.hash.substring(1);
+                    const decodedText = atob(base64Data);
+                    appData = JSON.parse(decodedText);
+                } catch (e) {
+                    console.error("Invalid URL payload string fallback applied.");
+                }
+            }
+            updateDropdowns();
+            generateShareableLink();
+        }
+        function generateShareableLink() {
+            const encodedData = btoa(JSON.stringify(appData));
+            globalFullUrl = window.location.origin + window.location.pathname + "#" + encodedData;
+        }
+
+        function copyRichHyperlink() {
+            if (!globalFullUrl) {
+                generateShareableLink();
+            }
+
+            const proxy = document.getElementById('hidden-copy-proxy');
+            if (!proxy) {
+                alert("Error: Link handler missing.");
+                return;
+            }
+
+            // Create a clean HTML anchor tag structure directly inside the contenteditable element
+            proxy.innerHTML = `<a href="${globalFullUrl}">SWAG BALANCES</a>`;
+
+            // Programmatically select the rich HTML text link inside the proxy
+            const range = document.createRange();
+            range.selectNodeContents(proxy);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+
+            try {
+                // Execute a Rich-Text object clipboard save operation
+                const successful = document.execCommand('copy');
+                if (successful) {
+                    alert('Webex Link Copied!\n\nPaste (Ctrl+V) directly into Webex. It will bypass the raw markdown rules and display as a short "SWAG BALANCES" clickable link.');
+                } else {
+                    alert('Copy failed.');
+                }
+            } catch (err) {
+                alert('Browser blocked execution. Highlight the text manually.');
+            }
+
+            // Clear selections to keep the interface clean
+            selection.removeAllRanges();
+            proxy.innerHTML = '';
+        }
+
+        function saveData() {
+            generateShareableLink();
+            updateDropdowns();
+            renderAdminDashboard();
+        }
+
+        function showView(viewId) {
+            document.querySelectorAll('.view-pane').forEach(el => el.classList.remove('active'));
+            document.getElementById(viewId).classList.add('active');
+        }
+
+        function updateDropdowns() {
+            const txSelect = document.getElementById('tx-agent');
+            if(!txSelect) return;
+            txSelect.innerHTML = '';
+
+            const sortedAgents = appData.agents
+                .filter(agent => !agent.isAdmin)
+                .sort((a, b) => a.name.localeCompare(b.name));
+
+            sortedAgents.forEach(agent => {
+                let opt = document.createElement('option');
+                opt.value = agent.id;
+                opt.textContent = `${agent.name} [Seat ${agent.pin}] (Current: ${agent.balance})`;
+                txSelect.appendChild(opt);
+            });
+        }
+
+        function processLogin() {
+            const inputPin = document.getElementById('login-pin').value.trim();
+            if (!inputPin) {
+                alert('Please enter a Seat Number / PIN.');
+                return;
+            }
+
+            const user = appData.agents.find(a => a.pin.toLowerCase() === inputPin.toLowerCase());
+
+            if (user) {
+                currentUser = user;
+                document.getElementById('login-pin').value = '';
+                if (currentUser.isAdmin) {
+                    renderAdminDashboard();
+                    showView('view-admin');
+                } else {
+                    renderAgentDashboard();
+                    showView('view-agent');
+                }
+            } else {
+                alert('No matching Seat Number or PIN found.');
+            }
+        }
+
+        function logout() {
+            currentUser = null;
+            showView('view-login');
+        }
+
+        function renderAgentDashboard() {
+            document.getElementById('agent-current-name').textContent = currentUser.name;
+            document.getElementById('agent-current-seat').textContent = currentUser.pin;
+            document.getElementById('agent-balance-val').textContent = currentUser.balance;
+
+            const tbody = document.getElementById('agent-ledger-rows');
+            tbody.innerHTML = '';
+
+            const userTxs = appData.transactions.filter(t => t.agentId === currentUser.id);
+            userTxs.reverse().forEach(tx => {
+                let row = document.createElement('tr');
+                let color = tx.amount >= 0 ? 'var(--success)' : 'var(--danger)';
+                let prefix = tx.amount >= 0 ? '+' : '';
+                row.innerHTML = `
+                    <td>${tx.desc}</td>
+                    <td style="color:${color}; font-weight:bold;">${prefix}${tx.amount}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function renderAdminDashboard() {
+            const tbody = document.getElementById('admin-roster-rows');
+            if(!tbody) return;
+            tbody.innerHTML = '';
+
+            const sortedAgents = [...appData.agents]
+                .filter(agent => !agent.isAdmin)
+                .sort((a, b) => a.name.localeCompare(b.name));
+
+            sortedAgents.forEach(agent => {
+                let row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${agent.name}</td>
+                    <td>
+                        <input type="text" class="inline-edit-input" value="${agent.pin}" onchange="updateAgentSeat(${agent.id}, this.value)">
+                    </td>
+                    <td><strong>${agent.balance}</strong></td>
+                    <td><button class="btn btn-danger" style="padding:4px 8px; font-size:0.8rem; width:auto;" onclick="deleteAgent(${agent.id})">Remove</button></td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function updateAgentSeat(agentId, newSeatValue) {
+            const cleanSeat = newSeatValue.trim();
+            if (!cleanSeat) {
+                alert('Seat field cannot be left empty.');
+                saveData(); 
+                return;
+            }
+
+            const duplicate = appData.agents.find(a => a.id !== agentId && a.pin.toLowerCase() === cleanSeat.toLowerCase());
+            if (duplicate) {
+                alert(`Error: Seat/PIN "${cleanSeat}" is already assigned.`);
+                saveData(); 
+                return;
+            }
+
+            let agent = appData.agents.find(a => a.id === agentId);
+            if (agent) {
+                agent.pin = cleanSeat;
+                saveData();
+            }
+        }
+
+        function applyTemplate() {
+            const val = document.getElementById('tx-template').value;
+            if (val === 'manual') {
+                document.getElementById('tx-amount').value = '';
+                document.getElementById('tx-desc').value = '';
+                return;
+            }
+            const parts = val.split('|');
+            const cost = parseInt(parts);
+            const itemName = parts;
+            
+            document.getElementById('tx-amount').value = -Math.abs(cost);
+            document.getElementById('tx-desc').value = `Redeemed ${itemName}`;
+        }
+
+        function submitTransaction() {
+            const agentId = parseInt(document.getElementById('tx-agent').value);
+            const amount = parseInt(document.getElementById('tx-amount').value);
+            const desc = document.getElementById('tx-desc').value.trim();
+
+            if (!agentId || isNaN(amount) || !desc) {
+                alert('Please complete all form boxes.');
+                return;
+            }
+
+            let agent = appData.agents.find(a => a.id === agentId);
+            agent.balance += amount;
+
+            appData.transactions.push({
+                id: Date.now(),
+                agentId: agentId,
+                amount: amount,
+                desc: desc
+            });
+
+            saveData();
+            document.getElementById('tx-amount').value = '';
+            document.getElementById('tx-desc').value = '';
+            document.getElementById('tx-template').value = 'manual';
+            alert('Balance updated successfully. Copy your updated Webex link!');
+        }
+
+        function addNewAgent() {
+            const name = document.getElementById('new-agent-name').value.trim();
+            const pin = document.getElementById('new-agent-pin').value.trim();
+
+            if (!name || !pin) {
+                alert('Please provide both an Agent Name and a Seat Number.');
+                return;
+            }
+
+            const duplicate = appData.agents.find(a => a.pin.toLowerCase() === pin.toLowerCase());
+            if (duplicate) {
+                alert(`Error: Seat/PIN "${pin}" is already assigned.`);
+                return;
+            }
+
+            appData.agents.push({
+                id: Date.now(),
+                name: name,
+                pin: pin,
+                balance: 0,
+                isAdmin: false
+            });
+
+            document.getElementById('new-agent-name').value = '';
+            document.getElementById('new-agent-pin').value = '';
+            saveData();
+        }
+
+        function deleteAgent(id) {
+            if (!confirm('Permanently remove this agent and delete their transaction logs?')) return;
+            appData.agents = appData.agents.filter(a => a.id !== id);
+            appData.transactions = appData.transactions.filter(t => t.agentId !== id);
+            saveData();
+        }
+
+        window.addEventListener('hashchange', loadFromUrlHash);
+        loadFromUrlHash();
+    </script>
+</body>
+</html>
