@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Spectrum Swag Portal</title>
+    <!-- Embedded installation manifest data metadata link -->
+    <link rel="manifest" href="data:application/manifest+json;base64,ewogICJuYW1lIjogIlNwZWN0cnVtIFN3YWcgQXBwIiwKICAic2hvcnRfbmFtZSI6ICJTd2FnIEFwcCIsCiAgInN0YXJ0X3VybCI6ICIuIiwKICAiZGlzcGxheSI6ICJzdGFuZGFsb25lIiwKICAiYmFja2dyb3VuZF9jb2xvciI6ICIjMGIwYzEwIiwKICAidGhlbWVfY29sb3IiOiAiIzAwNjI5YiIsCiAgImljb25zIjogWwogICAgewogICAgICAic3JjIjogImRhdGE6aW1hZ2Uvc3ZnK3htbDwlM0NzdmdjdXJyZW50Q29sb3I9JTIyJTIyIHZpZXdCb3g9JTIyMCAwIDI0IDI0JTIyIHhtbG5zPSUyMmh0dHA6Ly93d3wudzMub3JnLzIwMDAvc3ZnJTIyJTNFJTNDcGF0aCBkPSUyMk0xMiAyTDggNmg4bC00LTR6TTQgOGw0IDRoOGw0LTRINGh6JTIyIGZpbGw9JTIyJTIzNjZmY2YxJTIyJTNFJTNDL3N2ZzNFIiwKICAgICAgInNpemVzIjogIjE5MngxOTIiLAogICAgICAidHlwZSI6ICJpbWFnZS9zdmcreG1sIgogICAgfQogIF0KfQ==">
     <style>
         :root {
             --bg-dark: #0b0c10;
@@ -23,6 +25,7 @@
             margin: 0;
             padding: 0;
             min-height: 100vh;
+            overflow-x: hidden;
         }
         header {
             width: 100%;
@@ -67,7 +70,7 @@
         }
         .grid-2 {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: 1.4fr 1fr;
             gap: 25px;
         }
         @media(max-width: 992px) { .grid-2 { grid-template-columns: 1fr; } }
@@ -160,13 +163,33 @@
             flex-grow: 1;
             font-size: 1.1rem;
         }
-        /* Hidden copy proxy layer styling */
         #hidden-copy-proxy {
             position: absolute;
             left: -9999px;
             top: -9999px;
             background: white;
             color: black;
+        }
+        /* Flying particles animation overlay style */
+        .celebration-element {
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            font-size: 2rem;
+            animation: flyUp 2.5s ease-out forwards;
+            bottom: -50px;
+        }
+        @keyframes flyUp {
+            0% {
+                transform: translateY(0) rotate(0deg) scale(0.5);
+                opacity: 0;
+            }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% {
+                transform: translateY(-105vh) rotate(360deg) scale(1.2);
+                opacity: 0;
+            }
         }
     </style>
 </head>
@@ -229,14 +252,28 @@
                 <label>Click the button below to copy a rich-text hyperlink. When pasted directly into Webex, it bypasses the plain-text markdown renderer to paste as a clean link reading "SWAG BALANCES":</label>
                 <div class="link-container">
                     <div class="rich-link-preview">
-                        <span>SWAG BALANCES</span>
+                        <span style="color: var(--spectrum-cyan); font-weight: bold;">SWAG BALANCES</span>
                     </div>
                     <button class="btn" onclick="copyRichHyperlink()" style="width: auto; padding: 12px 25px;">Copy Webex Link</button>
                 </div>
             </div>
-
-            <!-- HIDDEN RICH TEXT CLIPBOARD PROXY -->
-            <div id="hidden-copy-proxy" contenteditable="true"></div>
+            <!-- ADMINISTRATIVE DATA SYNC AND MANAGEMENT HUB -->
+            <div class="card" style="margin-bottom: 20px;">
+                <h2>Ledger Backup Ingestion & Export Vault</h2>
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px; margin-top:8px;">
+                    <div>
+                        <label>Download Active Database Snapshot</label>
+                        <button class="btn" style="background:#4f5d75" onclick="exportToCSV()">Download Backup File (.csv)</button>
+                    </div>
+                    <div>
+                        <label>Ingest External Database Backup Sheet</label>
+                        <div style="display:flex; gap:10px; align-items:center;">
+                            <input type="file" id="csv-file-input" accept=".csv" style="padding:8px;">
+                            <button class="btn" style="background:linear-gradient(135deg, #00ffcc, var(--spectrum-blue)); color:#0b0c10; width:auto; white-space:nowrap;" onclick="importFromCSV()">Import Snapshot</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
             <div class="grid-2">
                 <div>
@@ -275,9 +312,7 @@
                         </div>
                         <button class="btn" onclick="submitTransaction()">Apply Transaction</button>
                     </div>
-                </div>
 
-                <div>
                     <!-- ROSTER ADDITION WITH SEAT ASSIGNMENT -->
                     <div class="card">
                         <h2>Roster Enrollment</h2>
@@ -291,26 +326,51 @@
                         </div>
                         <button class="btn btn-success-alt" onclick="addNewAgent()">Enroll Agent</button>
                     </div>
+                </div>
 
+                <div>
+                    <!-- AGENT MASTER ROSTER MANAGEMENT LIST -->
                     <div class="card">
                         <h2>Agent Master List (Alphabetical)</h2>
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Name</th>
-                                    <th>Seat / PIN</th>
-                                    <th>Balance</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody id="admin-roster-rows"></tbody>
-                        </table>
+                        <div class="scroll-box" style="max-height: 250px;">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Seat / PIN</th>
+                                        <th>Balance</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="admin-roster-rows"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <!-- COMPREHENSIVE OVERVIEW TRANSACTION AUDIT LOG FOR SUPERVISORS -->
+                    <div class="card">
+                        <h2>Global Transaction History Audit Log</h2>
+                        <div class="scroll-box" style="max-height: 380px;">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Agent Name</th>
+                                        <th>Description</th>
+                                        <th>Adjustment</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="admin-audit-rows"></tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
     </div>
+
+    <!-- HIDDEN RICH TEXT CLIPBOARD PROXY -->
+    <div id="hidden-copy-proxy" contenteditable="true"></div>
 
     <script>
         function getFreshInitialState() {
@@ -321,73 +381,86 @@
                     { id: 3, name: "Beta Agent", pin: "102", balance: 45, isAdmin: false }
                 ],
                 transactions: [
-                    { id: 1, agentId: 2, amount: 100, desc: "Onboarding Bonus" },
-                    { id: 2, agentId: 3, amount: 45, desc: "Performance Incentive" }
+                    { id: 1, agentId: 2, agentName: "Alpha Agent", amount: 100, desc: "Onboarding Bonus" },
+                    { id: 2, agentId: 3, agentName: "Beta Agent", amount: 45, desc: "Performance Incentive" }
                 ]
             };
         }
-
         let appData = getFreshInitialState();
         let currentUser = null;
         let globalFullUrl = "";
 
         function loadFromUrlHash() {
+            let loadedFromUrl = false;
             if (window.location.hash && window.location.hash.length > 1) {
                 try {
                     const base64Data = window.location.hash.substring(1);
                     const decodedText = atob(base64Data);
                     appData = JSON.parse(decodedText);
+                    loadedFromUrl = true;
+                    localStorage.setItem('spectrum_pwa_cache', JSON.stringify(appData));
                 } catch (e) {
-                    console.error("Invalid URL payload string fallback applied.");
+                    console.error("URL processing failure. Dropping down to fallback cache memory.");
+                }
+            }
+            if (!loadedFromUrl) {
+                const localCache = localStorage.getItem('spectrum_pwa_cache');
+                if (localCache) {
+                    try {
+                        appData = JSON.parse(localCache);
+                    } catch(e) {
+                        appData = getFreshInitialState();
+                    }
                 }
             }
             updateDropdowns();
             generateShareableLink();
+            if (document.getElementById('admin-audit-rows')) {
+                renderAdminDashboard();
+            }
         }
+
         function generateShareableLink() {
             const encodedData = btoa(JSON.stringify(appData));
             globalFullUrl = window.location.origin + window.location.pathname + "#" + encodedData;
         }
 
         function copyRichHyperlink() {
-            if (!globalFullUrl) {
-                generateShareableLink();
-            }
-
+            if (!globalFullUrl) generateShareableLink();
             const proxy = document.getElementById('hidden-copy-proxy');
-            if (!proxy) {
-                alert("Error: Link handler missing.");
-                return;
-            }
-
-            // Create a clean HTML anchor tag structure directly inside the contenteditable element
+            if (!proxy) return;
             proxy.innerHTML = `<a href="${globalFullUrl}">SWAG BALANCES</a>`;
-
-            // Programmatically select the rich HTML text link inside the proxy
             const range = document.createRange();
             range.selectNodeContents(proxy);
             const selection = window.getSelection();
             selection.removeAllRanges();
             selection.addRange(range);
-
             try {
-                // Execute a Rich-Text object clipboard save operation
-                const successful = document.execCommand('copy');
-                if (successful) {
-                    alert('Webex Link Copied!\n\nPaste (Ctrl+V) directly into Webex. It will bypass the raw markdown rules and display as a short "SWAG BALANCES" clickable link.');
-                } else {
-                    alert('Copy failed.');
-                }
-            } catch (err) {
-                alert('Browser blocked execution. Highlight the text manually.');
-            }
-
-            // Clear selections to keep the interface clean
+                document.execCommand('copy');
+                alert('Clickable "SWAG BALANCES" hyperlink copied to clipboard!\n\nPaste (Ctrl+V) directly into Webex.');
+            } catch (err) {}
             selection.removeAllRanges();
             proxy.innerHTML = '';
         }
 
+        function triggerCelebrationAnimation() {
+            const symbols = ["💎", "🪙", "+Swag", "✨", "🪙"];
+            for (let i = 0; i < 45; i++) {
+                setTimeout(() => {
+                    const particle = document.createElement('div');
+                    particle.className = 'celebration-element';
+                    particle.textContent = symbols[Math.floor(Math.random() * symbols.length)];
+                    particle.style.left = Math.random() * 100 + "vw";
+                    particle.style.fontSize = (Math.random() * 1.5 + 1) + "rem";
+                    particle.style.animationDelay = (Math.random() * 0.4) + "s";
+                    particle.style.animationDuration = (Math.random() * 1.5 + 1.5) + "s";
+                    document.body.appendChild(particle);
+                    setTimeout(() => { particle.remove(); }, 3000);
+                }, i * 15);
+            }
+        }
         function saveData() {
+            localStorage.setItem('spectrum_pwa_cache', JSON.stringify(appData));
             generateShareableLink();
             updateDropdowns();
             renderAdminDashboard();
@@ -427,6 +500,9 @@
             if (user) {
                 currentUser = user;
                 document.getElementById('login-pin').value = '';
+                
+                triggerCelebrationAnimation();
+
                 if (currentUser.isAdmin) {
                     renderAdminDashboard();
                     showView('view-admin');
@@ -464,28 +540,61 @@
                 tbody.appendChild(row);
             });
         }
-
         function renderAdminDashboard() {
-            const tbody = document.getElementById('admin-roster-rows');
-            if(!tbody) return;
-            tbody.innerHTML = '';
+            const rosterTbody = document.getElementById('admin-roster-rows');
+            const auditTbody = document.getElementById('admin-audit-rows');
+            
+            if(rosterTbody) {
+                rosterTbody.innerHTML = '';
+                const sortedAgents = [...appData.agents]
+                    .filter(agent => !agent.isAdmin)
+                    .sort((a, b) => a.name.localeCompare(b.name));
 
-            const sortedAgents = [...appData.agents]
-                .filter(agent => !agent.isAdmin)
-                .sort((a, b) => a.name.localeCompare(b.name));
+                sortedAgents.forEach(agent => {
+                    let row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${agent.name}</td>
+                        <td>
+                            <input type="text" class="inline-edit-input" value="${agent.pin}" onchange="updateAgentSeat(${agent.id}, this.value)">
+                        </td>
+                        <td><strong>${agent.balance}</strong></td>
+                        <td><button class="btn btn-danger" style="padding:4px 8px; font-size:0.8rem; width:auto;" onclick="deleteAgent(${agent.id})">Remove</button></td>
+                    `;
+                    rosterTbody.appendChild(row);
+                });
+            }
 
-            sortedAgents.forEach(agent => {
-                let row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${agent.name}</td>
-                    <td>
-                        <input type="text" class="inline-edit-input" value="${agent.pin}" onchange="updateAgentSeat(${agent.id}, this.value)">
-                    </td>
-                    <td><strong>${agent.balance}</strong></td>
-                    <td><button class="btn btn-danger" style="padding:4px 8px; font-size:0.8rem; width:auto;" onclick="deleteAgent(${agent.id})">Remove</button></td>
-                `;
-                tbody.appendChild(row);
-            });
+            if(auditTbody) {
+                auditTbody.innerHTML = '';
+                [...appData.transactions].reverse().forEach(tx => {
+                    let row = document.createElement('tr');
+                    let color = tx.amount >= 0 ? 'var(--success)' : 'var(--danger)';
+                    let prefix = tx.amount >= 0 ? '+' : '';
+                    row.innerHTML = `
+                        <td><strong>${tx.agentName}</strong></td>
+                        <td>${tx.desc}</td>
+                        <td style="color:${color}; font-weight:bold;">${prefix}${tx.amount}</td>
+                        <td><button class="btn btn-danger" style="padding:3px 6px; font-size:0.75rem; width:auto; background:#cc0000;" onclick="voidTransaction(${tx.id})">Void</button></td>
+                    `;
+                    auditTbody.appendChild(row);
+                });
+            }
+        }
+
+        function voidTransaction(txId) {
+            const idx = appData.transactions.findIndex(t => t.id === txId);
+            if (idx === -1) return;
+            
+            const tx = appData.transactions[idx];
+            if (!confirm(`Permanently void this entry and reverse agent balance matching:\n\n${tx.agentName} -> ${tx.desc} (${tx.amount})?`)) return;
+
+            let agent = appData.agents.find(a => a.id === tx.agentId);
+            if (agent) {
+                agent.balance -= tx.amount;
+            }
+
+            appData.transactions.splice(idx, 1);
+            saveData();
         }
 
         function updateAgentSeat(agentId, newSeatValue) {
@@ -509,7 +618,6 @@
                 saveData();
             }
         }
-
         function applyTemplate() {
             const val = document.getElementById('tx-template').value;
             if (val === 'manual') {
@@ -518,8 +626,8 @@
                 return;
             }
             const parts = val.split('|');
-            const cost = parseInt(parts);
-            const itemName = parts;
+            const cost = parseInt(parts[0]);
+            const itemName = parts[1];
             
             document.getElementById('tx-amount').value = -Math.abs(cost);
             document.getElementById('tx-desc').value = `Redeemed ${itemName}`;
@@ -541,6 +649,7 @@
             appData.transactions.push({
                 id: Date.now(),
                 agentId: agentId,
+                agentName: agent.name,
                 amount: amount,
                 desc: desc
             });
@@ -549,7 +658,7 @@
             document.getElementById('tx-amount').value = '';
             document.getElementById('tx-desc').value = '';
             document.getElementById('tx-template').value = 'manual';
-            alert('Balance updated successfully. Copy your updated Webex link!');
+            alert('Balance processed successfully. Copy your updated Webex link!');
         }
 
         function addNewAgent() {
@@ -585,6 +694,72 @@
             appData.agents = appData.agents.filter(a => a.id !== id);
             appData.transactions = appData.transactions.filter(t => t.agentId !== id);
             saveData();
+        }
+
+        function exportToCSV() {
+            let csvContent = "data:text/csv;charset=utf-8,Type|NameOrPIN|BalanceOrAmount|Description\n";
+            appData.agents.forEach(a => {
+                csvContent += `AGENT|"${a.name}"|${a.balance}|"${a.pin}"\n`;
+            });
+            appData.transactions.forEach(t => {
+                csvContent += `TX|"${t.agentName}"|${t.amount}|"${t.desc}"\n`;
+            });
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "Spectrum_Swag_System_Backup.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function importFromCSV() {
+            const fileInput = document.getElementById('csv-file-input');
+            if (!fileInput.files.length) {
+                alert("Please select a valid .csv backup file first.");
+                return;
+            }
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const text = e.target.result;
+                const lines = text.split('\n');
+                let importedAgents = [ { id: 1, name: "Manager Account (Admin)", pin: "2694", balance: 0, isAdmin: true } ];
+                let importedTransactions = [];
+                let nameToIdMap = {};
+
+                for(let i = 1; i < lines.length; i++) {
+                    const line = lines[i].trim();
+                    if(!line) continue;
+                    const columns = line.split('|');
+                    if(columns.length < 4) continue;
+                    const type = columns[0];
+                    const nameOrPin = columns[1].replace(/"/g, '');
+                    const value = parseInt(columns[2]);
+                    const descOrSeat = columns[3].replace(/"/g, '');
+
+                    if (type === "AGENT") {
+                        if (nameOrPin.includes("Manager Account")) continue;
+                        const newId = importedAgents.length + 1;
+                        nameToIdMap[nameOrPin] = newId;
+                        importedAgents.push({
+                            id: newId, name: nameOrPin, pin: descOrSeat, balance: value, isAdmin: false
+                        });
+                    } else if (type === "TX") {
+                        importedTransactions.push({
+                            id: Date.now() + i, agentId: nameToIdMap[nameOrPin] || 99, agentName: nameOrPin, amount: value, desc: descOrSeat
+                        });
+                    }
+                }
+                if(confirm(`Read backup sheet successfully. Ingest ${importedAgents.length - 1} agents and restore history logs?`)) {
+                    appData.agents = importedAgents;
+                    appData.transactions = importedTransactions;
+                    saveData();
+                    fileInput.value = "";
+                    alert("Database state fully synchronized.");
+                }
+            };
+            reader.readAsText(file);
         }
 
         window.addEventListener('hashchange', loadFromUrlHash);
